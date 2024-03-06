@@ -79,8 +79,8 @@
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
-            <artifactId>wiremock</artifactId>
-            <scope>test</scope>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.version}</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
