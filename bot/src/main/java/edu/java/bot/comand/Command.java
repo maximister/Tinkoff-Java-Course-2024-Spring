@@ -13,8 +13,10 @@ public interface Command {
 
     default boolean supports(Update update) {
         return update.message() != null
-            && update.message().text() != null
-            && update.message().text().startsWith(command());
+            && update.message().text() != null;
+        //по идее эту функцию на себя теперь берет нововведенная мапа в commandHandler,
+        //а взаимодействие с коммандами идет только через этот класс
+            //&& update.message().text().startsWith(command());
     }
 
     default BotCommand toApiCommand() {
