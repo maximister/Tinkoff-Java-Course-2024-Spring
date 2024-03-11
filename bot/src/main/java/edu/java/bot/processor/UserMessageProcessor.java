@@ -25,14 +25,14 @@ public class UserMessageProcessor extends AbstractChainProcessor {
     public SendMessage process(Update update) {
         long id = update.message().chat().id();
         if (update.message().text() != null) {
-            for (Command command : commandHandler.getCommands()) {
-                if (command.supports(update)) {
-                    log.info("Command from {} was processed", update.message().from());
-                    return command.handle(update);
-                }
+            Command command = commandHandler.getCommand(update.message().text());
+            if (command != null && command.supports(update)) {
+                log.info("Command from {} was processed", update.message().from());
+                return command.handle(update);
+            } else {
+                log.info("Received unsupported command");
+                return new SendMessage(id, UNSUPPORTED_COMMAND_MESSAGE);
             }
-            log.info("Received unsupported command");
-            return new SendMessage(id, UNSUPPORTED_COMMAND_MESSAGE);
         }
         log.info("Received command with no text");
         return new SendMessage(id, NO_TEXT_MESSAGE);
