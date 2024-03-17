@@ -80,7 +80,6 @@ public class UserMessageProcessorTest {
 
         System.out.println(answer.getParameters().get("text"));
         assertThat(answer.getParameters().get("text").equals(text)).isTrue();
-
     }
 
     @Test
