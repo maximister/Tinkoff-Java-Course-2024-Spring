@@ -6,14 +6,16 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.comand.ListCommand;
-import edu.java.bot.model.Link;
-import edu.java.bot.service.linkService.LinkService;
+import edu.java.bot.model.scrapperClientDto.LinkResponse;
+import edu.java.bot.model.scrapperClientDto.ListLinksResponse;
+import edu.java.bot.service.commandService.CommandService;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import java.util.Collections;
-import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ListCommandTest {
@@ -21,12 +23,15 @@ public class ListCommandTest {
     private static Message message;
     private static Chat chat;
     private static User user;
-    private static LinkService service;
+    private static CommandService service;
 
-    private static final List<Link> LINKS = List.of(
-        new Link(1, "https://link1"),
-        new Link(2, "https://link2"),
-        new Link(3, "https://link3")
+    private static final ListLinksResponse LINKS = new ListLinksResponse(
+        List.of(
+            new LinkResponse(1, URI.create("https://link1")),
+            new LinkResponse(2, URI.create("https://link2")),
+            new LinkResponse(3, URI.create("https://link3"))
+        ),
+        3
     );
 
     private final static String DEFAULT_MESSAGE = "There are no any tracked links";
@@ -43,13 +48,13 @@ public class ListCommandTest {
         message = Mockito.mock(Message.class);
         chat = Mockito.mock(Chat.class);
         user = Mockito.mock(User.class);
-        service = Mockito.mock(LinkService.class);
+        service = Mockito.mock(CommandService.class);
 
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
         Mockito.when(message.from()).thenReturn(user);
 
-        Mockito.when(service.getLinks(1L)).thenReturn(Collections.emptyList());
+        Mockito.when(service.getLinks(1L)).thenReturn(new ListLinksResponse(Collections.emptyList(), 0));
         Mockito.when(service.getLinks(2L)).thenReturn(LINKS);
     }
 

@@ -5,10 +5,12 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.comand.TrackCommand;
 import edu.java.bot.comand.UntrackCommand;
-import edu.java.bot.model.Link;
-import edu.java.bot.service.linkService.LinkService;
+import edu.java.bot.model.scrapperClientDto.LinkResponse;
+import edu.java.bot.model.scrapperClientDto.ListLinksResponse;
+import edu.java.bot.service.commandService.CommandService;
+import java.net.URI;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +24,7 @@ public class UntrackCommandTest {
     private static Message message;
     private static Chat chat;
     private static User user;
-    private static LinkService service;
-
+    private static CommandService service;
 
     private static final String INVALID_UNTRACK_MESSAGE = "Your link is invalid. Please try again";
     private static final String NO_SUCH_LINK_MESSAGE = "There is no such link in your list. Please try again";
@@ -35,7 +36,7 @@ public class UntrackCommandTest {
         message = Mockito.mock(Message.class);
         chat = Mockito.mock(Chat.class);
         user = Mockito.mock(User.class);
-        service = Mockito.mock(LinkService.class);
+        service = Mockito.mock(CommandService.class);
 
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
@@ -61,6 +62,8 @@ public class UntrackCommandTest {
     @DisplayName("untrack command with untracked link")
     public void untrackCommandTest_ShouldReturnNoSuchLinkMessage() {
         Mockito.when(message.text()).thenReturn("/track https://ylvdplsh");
+        Mockito.when(service.removeLink(Mockito.anyLong(), Mockito.any()))
+            .thenReturn(new LinkResponse(0, null));
         SendMessage answer = new UntrackCommand(service).handle(update);
 
         assertThat(answer.getParameters().get("text").equals(NO_SUCH_LINK_MESSAGE)).isTrue();
@@ -69,8 +72,15 @@ public class UntrackCommandTest {
     @Test
     @DisplayName("untrack command should untrack link")
     public void untrackCommandTest_ShouldReturnCorrectUntrackMessage() {
-        Mockito.when(service.getLinkByUrl(1L, "https://yrlvdplsh"))
-            .thenReturn(new Link(1, "https://yrlvdplsh"));
+        Mockito.when(service.getLinks(1L))
+            .thenReturn(
+                new ListLinksResponse(
+                    List.of(new LinkResponse(1, URI.create("https://yrlvdplsh"))),
+                    1
+                )
+            );
+        Mockito.when(service.removeLink(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(new LinkResponse(1L, URI.create("https://yrlvdplsh")));
         Mockito.when(message.text()).thenReturn("/track https://yrlvdplsh");
 
         SendMessage answer = new UntrackCommand(service).handle(update);

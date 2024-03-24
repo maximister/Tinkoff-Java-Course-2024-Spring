@@ -12,6 +12,7 @@ import edu.java.bot.comand.CommandHandler;
 import edu.java.bot.processor.AbstractChainProcessor;
 import edu.java.bot.processor.Processor;
 import edu.java.bot.processor.UserMessageProcessor;
+import edu.java.bot.sender.BotMessageSender;
 import jakarta.annotation.PostConstruct;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +22,21 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class LinkTrackerBot implements UpdatesListener, AutoCloseable, ExceptionHandler {
     private final TelegramBot telegramBot;
+    private final BotMessageSender sender;
     private final Processor processor;
     private final CommandMenuBuilder commandMenuBuilder;
 
-    public LinkTrackerBot(CommandHandler handler, TelegramBot telegramBot, CommandMenuBuilder commandMenuBuilder) {
+    public LinkTrackerBot(
+        CommandHandler handler,
+        TelegramBot telegramBot,
+        BotMessageSender sender,
+        CommandMenuBuilder commandMenuBuilder
+    ) {
         this.telegramBot = telegramBot;
         this.processor = AbstractChainProcessor.makeChain(
             new UserMessageProcessor(handler)
         );
+        this.sender = sender;
         this.commandMenuBuilder = commandMenuBuilder;
     }
 
@@ -48,13 +56,18 @@ public class LinkTrackerBot implements UpdatesListener, AutoCloseable, Exception
 
     @Override
     public int process(List<Update> updates) {
-        for (Update update : updates) {
-            SendMessage answer = processor.process(update);
+        try {
+            for (Update update : updates) {
+                SendMessage answer = processor.process(update);
+                sender.sendMessage(answer);
+            }
 
-            execute(answer);
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        } catch (Exception e) {
+            log.error("Error in bot {}", e.toString());
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }
 
-        return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
     @Override

@@ -12,8 +12,9 @@ import edu.java.bot.comand.ListCommand;
 import edu.java.bot.comand.StartCommand;
 import edu.java.bot.comand.TrackCommand;
 import edu.java.bot.comand.UntrackCommand;
-import edu.java.bot.service.linkService.LinkService;
-import edu.java.bot.service.userService.UserService;
+import edu.java.bot.model.scrapperClientDto.ListLinksResponse;
+import edu.java.bot.service.commandService.CommandService;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,9 +34,8 @@ public class UserMessageProcessorTest {
     private static Chat chat;
     private static User user;
 
-    private static LinkService linkService;
-    private static UserService userService;
     private static List<Command> commands;
+    private static CommandService service;
 
     private final static String NO_TEXT_MESSAGE =
         "please don't send anything other than text, it's hard for me to work with";
@@ -48,8 +48,7 @@ public class UserMessageProcessorTest {
         message = Mockito.mock(Message.class);
         chat = Mockito.mock(Chat.class);
         user = Mockito.mock(User.class);
-        userService = Mockito.mock(UserService.class);
-        linkService = Mockito.mock(LinkService.class);
+        service = Mockito.mock(CommandService.class);
 
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
@@ -59,12 +58,11 @@ public class UserMessageProcessorTest {
 
         commands = List.of(
             new HelpCommand(),
-            new StartCommand(userService),
-            new ListCommand(linkService),
-            new TrackCommand(linkService),
-            new UntrackCommand(linkService)
+            new StartCommand(service),
+            new ListCommand(service),
+            new TrackCommand(service),
+            new UntrackCommand(service)
         );
-
 
         //если создавать в каждом тесте снова, то в тесте ниже в /help будут повторы, так что пока так
         ump = new UserMessageProcessor(new CommandHandler(commands));
@@ -75,12 +73,13 @@ public class UserMessageProcessorTest {
     @DisplayName("test that user message processor will choose correct command to handle update")
     public void userMessageProcessor_shouldCorrectlyProcessUpdate(String command, String text) {
         Mockito.when(message.text()).thenReturn(command);
+        Mockito.when(service.getLinks(Mockito.anyLong()))
+            .thenReturn(new ListLinksResponse(Collections.emptyList(), 0));
 
         SendMessage answer = ump.process(update);
 
         System.out.println(answer.getParameters().get("text"));
         assertThat(answer.getParameters().get("text").equals(text)).isTrue();
-
     }
 
     @Test
@@ -103,9 +102,7 @@ public class UserMessageProcessorTest {
         assertThat(answer.getParameters().get("text").equals(UNSUPPORTED_COMMAND_MESSAGE)).isTrue();
     }
 
-
-
-        public static Stream<Arguments> getCommandAndMessage() {
+    public static Stream<Arguments> getCommandAndMessage() {
         String helpMessage = """
             Welcome to Link Tracker Bot
             You can interact with me using following commands:

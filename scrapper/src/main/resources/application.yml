@@ -1,15 +1,38 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
-    force-check-delay: 10s
+    interval: 15s
+    force-check-delay: 15s
+  allowedUrlPatterns:
+    - https://github.com/(?<owner>.+)/(?<repo>.+)
+    - https://stackoverflow.com/questions/(\d+).*
 
 spring:
   application:
     name: scrapper
+  datasource:
+    url: jdbc:postgresql://localhost:5437/scrapper
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    enabled: false
 
 server:
   port: 8080
 
 logging:
   config: classpath:log4j2-plain.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
+client:
+  github:
+    token: ${GITHUB_TOKEN:}
+  stackoverflow:
+    access-token: ${STACKOVERFLOW_ACCESS_TOKEN:}
+    key: ${STACKOVERFLOW_KEY:}
+
+
