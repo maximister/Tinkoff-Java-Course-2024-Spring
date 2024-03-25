@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.comand.StartCommand;
-import edu.java.bot.service.userService.UserService;
+import edu.java.bot.service.commandService.CommandService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class StartCommandTest {
     private static Message message;
     private static Chat chat;
     private static User user;
-    private static UserService service;
+    private static CommandService service;
 
     private final static String DEFAULT_MESSAGE = """
         Welcome to Link Tracker Bot
@@ -30,7 +30,7 @@ public class StartCommandTest {
         message = Mockito.mock(Message.class);
         chat = Mockito.mock(Chat.class);
         user = Mockito.mock(User.class);
-        service = Mockito.mock(UserService.class);
+        service = Mockito.mock(CommandService.class);
 
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);

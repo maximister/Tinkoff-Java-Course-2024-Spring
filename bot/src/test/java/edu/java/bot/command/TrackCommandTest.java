@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.comand.TrackCommand;
-import edu.java.bot.service.linkService.LinkService;
+import edu.java.bot.service.commandService.CommandService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ public class TrackCommandTest {
     private static Message message;
     private static Chat chat;
     private static User user;
-    private static LinkService service;
+    private static CommandService service;
 
 
     private static final String  INVALID_LINK_MESSAGE = "Your link is invalid. Please try again";
@@ -30,7 +30,7 @@ public class TrackCommandTest {
         message = Mockito.mock(Message.class);
         chat = Mockito.mock(Chat.class);
         user = Mockito.mock(User.class);
-        service = Mockito.mock(LinkService.class);
+        service = Mockito.mock(CommandService.class);
 
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
